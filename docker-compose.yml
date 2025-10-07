@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  medinavi-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: medinavi-ai
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_NAME=MediNavi AI
+      - APP_VERSION=0.1.0
+      - DEBUG=false
+      - ENVIRONMENT=production
+      - HOST=0.0.0.0
+      - PORT=8000
+      - API_V1_PREFIX=/api/v1
+      - LOG_LEVEL=INFO
+      - LOG_FORMAT=json
+      - ENABLE_CACHE=true
+      - CACHE_TTL=3600
+      - RATE_LIMIT_PER_MINUTE=60
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - medinavi-network
+
+  # 향후 확장: 데이터베이스
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: medinavi-db
+  #   environment:
+  #     POSTGRES_DB: medinavi_db
+  #     POSTGRES_USER: medinavi_user
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - medinavi-network
+
+  # 향후 확장: Redis 캐시
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: medinavi-redis
+  #   networks:
+  #     - medinavi-network
+
+networks:
+  medinavi-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

@@ -1,0 +1,8 @@
+v: 0
+micros:
+  - name: api
+    src: .
+    engine: python3.11
+    primary: true
+    # Repo entrypoint is app/main.py, so use module path app.main:app
+    run: uvicorn app.main:app --host 0.0.0.0 --port 8000
